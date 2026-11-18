@@ -63,14 +63,17 @@ make generate-client
 The login screen is driven by `GET /api/v1/utils/config`:
 
 - `password_login` — render the email/password form and signup link.
-- `google_client_id` — render the Google Identity Services button.
+- `google_login` — render the Google sign-in button.
 
-Google sign-in loads GIS, posts the ID token to `POST /api/v1/auth/google`,
-and uses that same ID token as the bearer credential. Accounts with
-`has_password: false` (created through Google) do not see the password tab in
-settings.
+Google sign-in uses the backend's authorization-code flow. The button navigates
+to `GET /api/v1/auth/google/start`; the backend redirects to Google, exchanges
+the code with the server-side client secret, and returns to
+`/auth/callback#access_token=...`. The SPA stores that token and loads the user.
+The client secret is never shipped to the browser.
 
-The SPA only needs the public Google client id; no client secret is included.
+Accounts with `has_password: false` (created through Google) do not see the
+password tab in settings.
+
 The access token is currently kept in `localStorage`; moving sessions to
 httpOnly cookies is tracked as a follow-up hardening item.
 

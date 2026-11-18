@@ -34,8 +34,28 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>
 
+const searchSchema = z.object({
+  google_error: z.string().optional(),
+})
+
+const googleErrorMessage = (reason: string) => {
+  switch (reason) {
+    case "denied":
+      return "Google sign-in was cancelled."
+    case "not_allowed":
+      return "This Google account is not allowed to sign in."
+    case "inactive":
+      return "This account is inactive."
+    case "conflict":
+      return "This Google account is already linked to another user."
+    default:
+      return "Google sign-in failed. Please try again."
+  }
+}
+
 export const Route = createFileRoute("/login")({
   component: Login,
+  validateSearch: searchSchema,
   beforeLoad: async () => {
     if (isLoggedIn()) {
       throw redirect({
@@ -53,10 +73,11 @@ export const Route = createFileRoute("/login")({
 })
 
 function Login() {
-  const { loginMutation, googleLoginMutation } = useAuth()
+  const { loginMutation } = useAuth()
   const authConfig = useAuthConfig()
+  const { google_error: googleError } = Route.useSearch()
   const passwordLogin = authConfig.data?.password_login ?? false
-  const googleClientId = authConfig.data?.google_client_id ?? null
+  const googleLogin = authConfig.data?.google_login ?? false
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -90,15 +111,15 @@ function Login() {
           </p>
         ) : (
           <>
-            {googleClientId ? (
-              <GoogleSignInButton
-                clientId={googleClientId}
-                disabled={googleLoginMutation.isPending}
-                onCredential={(idToken) => googleLoginMutation.mutate(idToken)}
-              />
+            {googleError ? (
+              <p className="rounded-md bg-destructive/10 px-3 py-2 text-center text-sm text-destructive">
+                {googleErrorMessage(googleError)}
+              </p>
             ) : null}
 
-            {googleClientId && passwordLogin ? (
+            {googleLogin ? <GoogleSignInButton /> : null}
+
+            {googleLogin && passwordLogin ? (
               <div className="relative text-center text-xs uppercase text-muted-foreground">
                 <span className="relative bg-background px-2">or</span>
               </div>
@@ -169,7 +190,7 @@ function Login() {
               </Form>
             ) : null}
 
-            {!googleClientId && !passwordLogin ? (
+            {!googleLogin && !passwordLogin ? (
               <p className="text-center text-sm text-muted-foreground">
                 No sign-in methods are configured for this deployment.
               </p>

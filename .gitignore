@@ -29,3 +29,6 @@ openapi.json
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Local OAuth client JSON contains a client secret; never commit it.
+google-oauth.json

@@ -1,4 +1,4 @@
-import { expect, type Page, test } from "@playwright/test"
+import { expect, test } from "@playwright/test"
 
 const api = process.env.VITE_API_URL
 
@@ -12,36 +12,17 @@ const googleUser = {
   created_at: new Date().toISOString(),
 }
 
-const stubGoogleIdentity = (page: Page, credential = "stub-id-token") =>
-  page.addInitScript((token) => {
-    let callback: ((response: { credential?: string }) => void) | undefined
-
-    ;(window as any).google = {
-      accounts: {
-        id: {
-          initialize: (options: { callback: typeof callback }) => {
-            callback = options.callback
-          },
-          renderButton: (element: HTMLElement) => {
-            const button = document.createElement("button")
-            button.type = "button"
-            button.textContent = "Stub Google"
-            button.onclick = () => callback?.({ credential: token })
-            element.appendChild(button)
-          },
-          disableAutoSelect: () => {},
-        },
-      },
-    }
-  }, credential)
-
 const stubConfig = (config: {
   password_login: boolean
-  google_client_id: string | null
+  google_login: boolean
+  google_client_id?: string | null
 }) => ({
   status: 200,
   contentType: "application/json",
-  body: JSON.stringify(config),
+  body: JSON.stringify({
+    google_client_id: config.google_login ? "test-client" : null,
+    ...config,
+  }),
 })
 
 test.describe("Google sign-in", () => {
@@ -50,11 +31,8 @@ test.describe("Google sign-in", () => {
   test("renders Google only when it is the configured method", async ({
     page,
   }) => {
-    await stubGoogleIdentity(page)
     await page.route("**/api/v1/utils/config", (route) =>
-      route.fulfill(
-        stubConfig({ password_login: false, google_client_id: "test-client" }),
-      ),
+      route.fulfill(stubConfig({ password_login: false, google_login: true })),
     )
 
     await page.goto("/login")
@@ -68,9 +46,7 @@ test.describe("Google sign-in", () => {
     page,
   }) => {
     await page.route("**/api/v1/utils/config", (route) =>
-      route.fulfill(
-        stubConfig({ password_login: true, google_client_id: null }),
-      ),
+      route.fulfill(stubConfig({ password_login: true, google_login: false })),
     )
 
     await page.goto("/login")
@@ -83,9 +59,7 @@ test.describe("Google sign-in", () => {
 
   test("explains when no sign-in methods are configured", async ({ page }) => {
     await page.route("**/api/v1/utils/config", (route) =>
-      route.fulfill(
-        stubConfig({ password_login: false, google_client_id: null }),
-      ),
+      route.fulfill(stubConfig({ password_login: false, google_login: false })),
     )
 
     await page.goto("/login")
@@ -95,23 +69,23 @@ test.describe("Google sign-in", () => {
     ).toBeVisible()
   })
 
-  test("exchanges a Google credential for a session", async ({ page }) => {
-    await stubGoogleIdentity(page)
+  test("starts the redirect flow and completes the callback", async ({
+    page,
+  }) => {
     await page.route("**/api/v1/utils/config", (route) =>
-      route.fulfill(
-        stubConfig({ password_login: false, google_client_id: "test-client" }),
-      ),
+      route.fulfill(stubConfig({ password_login: false, google_login: true })),
     )
-    await page.route("**/api/v1/auth/google", async (route) => {
-      expect(route.request().postDataJSON()).toEqual({
-        id_token: "stub-id-token",
-      })
-      await route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(googleUser),
-      })
-    })
+    await page.route("**/api/v1/auth/google/start", (route) =>
+      route.fulfill({
+        status: 302,
+        headers: {
+          location: new URL(
+            "/auth/callback#access_token=stub-id-token",
+            page.url(),
+          ).toString(),
+        },
+      }),
+    )
     await page.route("**/api/v1/users/me", (route) =>
       route.fulfill({
         status: 200,
@@ -121,7 +95,7 @@ test.describe("Google sign-in", () => {
     )
 
     await page.goto("/login")
-    await page.getByRole("button", { name: "Stub Google" }).click()
+    await page.getByTestId("google-signin").click()
 
     await expect(page).toHaveURL("/")
     await expect(
@@ -130,6 +104,31 @@ test.describe("Google sign-in", () => {
     expect(
       await page.evaluate(() => localStorage.getItem("access_token")),
     ).toBe("stub-id-token")
+  })
+
+  test("rejects a callback without a token", async ({ page }) => {
+    await page.route("**/api/v1/utils/config", (route) =>
+      route.fulfill(stubConfig({ password_login: false, google_login: true })),
+    )
+
+    await page.goto("/auth/callback")
+
+    await expect(page).toHaveURL(/\/login\?google_error=failed/)
+    await expect(
+      page.getByText("Google sign-in failed. Please try again."),
+    ).toBeVisible()
+  })
+
+  test("shows the backend's Google error reason", async ({ page }) => {
+    await page.route("**/api/v1/utils/config", (route) =>
+      route.fulfill(stubConfig({ password_login: false, google_login: true })),
+    )
+
+    await page.goto("/login?google_error=not_allowed")
+
+    await expect(
+      page.getByText("This Google account is not allowed to sign in."),
+    ).toBeVisible()
   })
 
   test("password-less accounts do not see the password tab", async ({
@@ -157,9 +156,7 @@ test.describe("Google sign-in", () => {
     page,
   }) => {
     await page.route("**/api/v1/utils/config", (route) =>
-      route.fulfill(
-        stubConfig({ password_login: false, google_client_id: "test-client" }),
-      ),
+      route.fulfill(stubConfig({ password_login: false, google_login: true })),
     )
 
     await page.goto("/signup")
@@ -172,7 +169,9 @@ test.describe("Google sign-in", () => {
     await expect(page.getByTestId("email-input")).toHaveCount(0)
   })
 
-  test("the API rejects an invalid Google credential", async ({ request }) => {
+  test("the API still rejects an invalid Google ID token", async ({
+    request,
+  }) => {
     const response = await request.post(`${api}/api/v1/auth/google`, {
       data: { id_token: "not-a-google-token" },
     })

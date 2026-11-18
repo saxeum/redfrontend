@@ -45,6 +45,10 @@ export type ConfigResponse = {
      */
     google_client_id: string | null;
     /**
+     * Google Login
+     */
+    google_login: boolean;
+    /**
      * Password Login
      */
     password_login: boolean;
@@ -386,6 +390,20 @@ export type authLoginWithGoogleResponses = {
 };
 
 export type authLoginWithGoogleResponse = authLoginWithGoogleResponses[keyof authLoginWithGoogleResponses];
+
+export type authGoogleStartData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/google/start';
+};
+
+export type authGoogleStartResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type itemsReadItemsData = {
     body?: never;

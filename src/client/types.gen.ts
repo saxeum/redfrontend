@@ -157,6 +157,130 @@ export type ItemUpdateRequest = {
 };
 
 /**
+ * MailListResponse
+ */
+export type MailListResponse = {
+    /**
+     * Count
+     */
+    count: number;
+    /**
+     * Data
+     */
+    data: Array<MailMessageResponse>;
+};
+
+/**
+ * MailMessageDetailResponse
+ */
+export type MailMessageDetailResponse = {
+    /**
+     * Body
+     */
+    body: string;
+    /**
+     * From Address
+     */
+    from_address: string;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Mailbox
+     */
+    mailbox: string;
+    /**
+     * Received At
+     */
+    received_at: string;
+    /**
+     * Remote Id
+     */
+    remote_id: string;
+    /**
+     * Snippet
+     */
+    snippet: string;
+    /**
+     * Subject
+     */
+    subject: string | null;
+    /**
+     * Thread Id
+     */
+    thread_id: string;
+};
+
+/**
+ * MailMessageResponse
+ */
+export type MailMessageResponse = {
+    /**
+     * From Address
+     */
+    from_address: string;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * Mailbox
+     */
+    mailbox: string;
+    /**
+     * Received At
+     */
+    received_at: string;
+    /**
+     * Remote Id
+     */
+    remote_id: string;
+    /**
+     * Snippet
+     */
+    snippet: string;
+    /**
+     * Subject
+     */
+    subject: string | null;
+    /**
+     * Thread Id
+     */
+    thread_id: string;
+};
+
+/**
+ * MailPollResponse
+ */
+export type MailPollResponse = {
+    /**
+     * Cursor
+     */
+    cursor: string;
+    /**
+     * Listed
+     */
+    listed: number;
+    /**
+     * Mailbox
+     */
+    mailbox: string;
+    /**
+     * Mode
+     */
+    mode: string;
+    /**
+     * Skipped
+     */
+    skipped: number;
+    /**
+     * Stored
+     */
+    stored: number;
+};
+
+/**
  * MeUpdateRequest
  */
 export type MeUpdateRequest = {
@@ -683,6 +807,146 @@ export type loginTestTokenResponses = {
 };
 
 export type loginTestTokenResponse = loginTestTokenResponses[keyof loginTestTokenResponses];
+
+export type mailListMailMessagesData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Skip
+         */
+        skip?: number;
+        /**
+         * Limit
+         */
+        limit?: number;
+    };
+    url: '/api/v1/mail/messages';
+};
+
+export type mailListMailMessagesErrors = {
+    /**
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
+     */
+    403: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+    /**
+     * Service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type mailListMailMessagesError = mailListMailMessagesErrors[keyof mailListMailMessagesErrors];
+
+export type mailListMailMessagesResponses = {
+    /**
+     * Successful Response
+     */
+    200: MailListResponse;
+};
+
+export type mailListMailMessagesResponse = mailListMailMessagesResponses[keyof mailListMailMessagesResponses];
+
+export type mailReadMailMessageData = {
+    body?: never;
+    path: {
+        /**
+         * Mail Id
+         */
+        mail_id: string;
+    };
+    query?: never;
+    url: '/api/v1/mail/messages/{mail_id}';
+};
+
+export type mailReadMailMessageErrors = {
+    /**
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
+     */
+    403: ErrorResponse;
+    /**
+     * Mail message not found
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+    /**
+     * Service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type mailReadMailMessageError = mailReadMailMessageErrors[keyof mailReadMailMessageErrors];
+
+export type mailReadMailMessageResponses = {
+    /**
+     * Successful Response
+     */
+    200: MailMessageDetailResponse;
+};
+
+export type mailReadMailMessageResponse = mailReadMailMessageResponses[keyof mailReadMailMessageResponses];
+
+export type mailPollMailboxData = {
+    body?: never;
+    path?: never;
+    query?: {
+        /**
+         * Limit
+         *
+         * messages to list on a full sync
+         */
+        limit?: number;
+    };
+    url: '/api/v1/mail/poll';
+};
+
+export type mailPollMailboxErrors = {
+    /**
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
+     */
+    403: ErrorResponse;
+    /**
+     * Mail polling is not configured
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+    /**
+     * Service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type mailPollMailboxError = mailPollMailboxErrors[keyof mailPollMailboxErrors];
+
+export type mailPollMailboxResponses = {
+    /**
+     * Successful Response
+     */
+    200: MailPollResponse;
+};
+
+export type mailPollMailboxResponse = mailPollMailboxResponses[keyof mailPollMailboxResponses];
 
 export type usersReadUsersData = {
     body?: never;

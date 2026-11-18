@@ -1,12 +1,11 @@
 import { expect, test } from "@playwright/test"
-import { createUser } from "./utils/privateApi"
 import {
   randomEmail,
   randomItemDescription,
   randomItemTitle,
   randomPassword,
 } from "./utils/random"
-import { logInUser } from "./utils/user"
+import { createUser, logInUser } from "./utils/user"
 
 test("Items page is accessible and shows correct title", async ({ page }) => {
   await page.goto("/items")

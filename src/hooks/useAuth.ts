@@ -4,8 +4,8 @@ import { useNavigate } from "@tanstack/react-router"
 import {
   type Body_login_login_access_token as AccessToken,
   LoginService,
-  type UserPublic,
-  type UserRegister,
+  type SignupRequest,
+  type UserResponse,
   UsersService,
 } from "@/client"
 import { handleError } from "@/utils"
@@ -20,14 +20,14 @@ const useAuth = () => {
   const queryClient = useQueryClient()
   const { showErrorToast } = useCustomToast()
 
-  const { data: user } = useQuery<UserPublic | null, Error>({
+  const { data: user } = useQuery<UserResponse | null, Error>({
     queryKey: ["currentUser"],
     queryFn: async () => (await UsersService.readUserMe()).data,
     enabled: isLoggedIn(),
   })
 
   const signUpMutation = useMutation({
-    mutationFn: (data: UserRegister) =>
+    mutationFn: (data: SignupRequest) =>
       UsersService.registerUser({ body: data }),
     onSuccess: () => {
       navigate({ to: "/login" })

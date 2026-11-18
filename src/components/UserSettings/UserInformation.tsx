@@ -4,7 +4,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { UsersService, type UserUpdateMe } from "@/client"
+import { type MeUpdateRequest, UsersService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Form,
@@ -49,7 +49,7 @@ const UserInformation = () => {
   }
 
   const mutation = useMutation({
-    mutationFn: (data: UserUpdateMe) =>
+    mutationFn: (data: MeUpdateRequest) =>
       UsersService.updateUserMe({ body: data }),
     onSuccess: () => {
       showSuccessToast("User updated successfully")
@@ -62,7 +62,7 @@ const UserInformation = () => {
   })
 
   const onSubmit = (data: FormData) => {
-    const updateData: UserUpdateMe = {}
+    const updateData: MeUpdateRequest = {}
 
     // only include fields that have changed
     if (data.full_name !== currentUser?.full_name) {

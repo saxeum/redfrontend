@@ -44,14 +44,15 @@ test.describe("API error contract", () => {
     expect(response.status()).toBe(401)
   })
 
-  test("invalid token returns 403 Could not validate credentials", async ({
+  test("invalid token returns 401 Could not validate credentials", async ({
     request,
   }) => {
     const response = await request.get(`${api}/api/v1/users/me`, {
       headers: { Authorization: "Bearer invalid_token" },
     })
 
-    expect(response.status()).toBe(403)
+    expect(response.status()).toBe(401)
+    expect(response.headers()["www-authenticate"]).toBe("Bearer")
     expect(await response.json()).toEqual({
       detail: "Could not validate credentials",
     })

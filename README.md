@@ -58,6 +58,25 @@ make generate-client
 `SPEC_SOURCE` is the only cross-repository input. No backend code is imported.
 `openapi.json` is gitignored here; commit the regenerated `src/client` files.
 
+## Authentication
+
+The login screen is driven by `GET /api/v1/utils/config`:
+
+- `password_login` — render the email/password form and signup link.
+- `google_login` — render the Google sign-in button.
+
+Google sign-in uses the backend's authorization-code flow. The button navigates
+to `GET /api/v1/auth/google/start`; the backend redirects to Google, exchanges
+the code with the server-side client secret, and returns to
+`/auth/callback#access_token=...`. The SPA stores that token and loads the user.
+The client secret is never shipped to the browser.
+
+Accounts with `has_password: false` (created through Google) do not see the
+password tab in settings.
+
+The access token is currently kept in `localStorage`; moving sessions to
+httpOnly cookies is tracked as a follow-up hardening item.
+
 ## Tests
 
 Playwright E2E requires a running backend:

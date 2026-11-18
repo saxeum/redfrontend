@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type UserCreate, UsersService } from "@/client"
+import { type UserCreateRequest, UsersService } from "@/client"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -43,7 +43,6 @@ const formSchema = z
       .string()
       .min(1, { message: "Please confirm your password" }),
     is_superuser: z.boolean(),
-    is_active: z.boolean(),
   })
   .refine((data) => data.password === data.confirm_password, {
     message: "The passwords don't match",
@@ -67,12 +66,12 @@ const AddUser = () => {
       password: "",
       confirm_password: "",
       is_superuser: false,
-      is_active: false,
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: UserCreate) => UsersService.createUser({ body: data }),
+    mutationFn: (data: UserCreateRequest) =>
+      UsersService.createUser({ body: data }),
     onSuccess: () => {
       showSuccessToast("User created successfully")
       form.reset()
@@ -196,22 +195,6 @@ const AddUser = () => {
                       />
                     </FormControl>
                     <FormLabel className="font-normal">Is superuser?</FormLabel>
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="is_active"
-                render={({ field }) => (
-                  <FormItem className="flex items-center gap-3 space-y-0">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel className="font-normal">Is active?</FormLabel>
                   </FormItem>
                 )}
               />

@@ -18,4 +18,8 @@ case "$SPEC_SOURCE" in
     ;;
 esac
 
-bun run generate-client
+if command -v bun >/dev/null 2>&1; then
+  bun run generate-client
+else
+  ./node_modules/.bin/openapi-ts
+fi

@@ -1,8 +1,7 @@
 import { expect, test } from "@playwright/test"
 import { firstSuperuser, firstSuperuserPassword } from "./config.ts"
-import { createUser } from "./utils/privateApi"
 import { randomEmail, randomPassword } from "./utils/random"
-import { logInUser } from "./utils/user"
+import { createUser, logInUser } from "./utils/user"
 
 test("Admin page is accessible and shows correct title", async ({ page }) => {
   await page.goto("/admin")
@@ -54,7 +53,6 @@ test.describe("Admin user management", () => {
     await page.getByPlaceholder("Password").first().fill(password)
     await page.getByPlaceholder("Password").last().fill(password)
     await page.getByLabel("Is superuser?").check()
-    await page.getByLabel("Is active?").check()
 
     await page.getByRole("button", { name: "Save" }).click()
 

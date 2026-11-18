@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginTestTokenData, loginTestTokenResponses, privateCreateUserData, privateCreateUserErrors, privateCreateUserResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses } from './types.gen';
+import type { itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginTestTokenData, loginTestTokenErrors, loginTestTokenResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeErrors, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeErrors, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -18,11 +18,91 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
     meta?: Record<string, unknown>;
 };
 
+export class ItemsService {
+    /**
+     * Read Items
+     *
+     * Retrieve items visible to the caller.
+     */
+    public static readItems<ThrowOnError extends boolean = true>(options?: Options<itemsReadItemsData, ThrowOnError>) {
+        return (options?.client ?? client).get<itemsReadItemsResponses, itemsReadItemsErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/items/',
+            ...options
+        });
+    }
+    
+    /**
+     * Create Item
+     *
+     * Create a new item owned by the caller.
+     */
+    public static createItem<ThrowOnError extends boolean = true>(options: Options<itemsCreateItemData, ThrowOnError>) {
+        return (options.client ?? client).post<itemsCreateItemResponses, itemsCreateItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/items/',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete Item
+     *
+     * Delete an item the caller may access.
+     */
+    public static deleteItem<ThrowOnError extends boolean = true>(options: Options<itemsDeleteItemData, ThrowOnError>) {
+        return (options.client ?? client).delete<itemsDeleteItemResponses, itemsDeleteItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/items/{id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Item
+     *
+     * Get an item by id.
+     */
+    public static readItem<ThrowOnError extends boolean = true>(options: Options<itemsReadItemData, ThrowOnError>) {
+        return (options.client ?? client).get<itemsReadItemResponses, itemsReadItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/items/{id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Update Item
+     *
+     * Update an item the caller may access.
+     */
+    public static updateItem<ThrowOnError extends boolean = true>(options: Options<itemsUpdateItemData, ThrowOnError>) {
+        return (options.client ?? client).put<itemsUpdateItemResponses, itemsUpdateItemErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/items/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
 export class LoginService {
     /**
      * Login Access Token
      *
-     * OAuth2 compatible token login, get an access token for future requests
+     * OAuth2 compatible token login, get an access token for future requests.
      */
     public static loginAccessToken<ThrowOnError extends boolean = true>(options: Options<loginLoginAccessTokenData, ThrowOnError>) {
         return (options.client ?? client).post<loginLoginAccessTokenResponses, loginLoginAccessTokenErrors, ThrowOnError>({
@@ -40,10 +120,10 @@ export class LoginService {
     /**
      * Test Token
      *
-     * Test access token
+     * Test access token.
      */
     public static testToken<ThrowOnError extends boolean = true>(options?: Options<loginTestTokenData, ThrowOnError>) {
-        return (options?.client ?? client).post<loginTestTokenResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).post<loginTestTokenResponses, loginTestTokenErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/login/test-token',
@@ -56,7 +136,7 @@ export class UsersService {
     /**
      * Read Users
      *
-     * Retrieve users.
+     * Retrieve users (superuser only).
      */
     public static readUsers<ThrowOnError extends boolean = true>(options?: Options<usersReadUsersData, ThrowOnError>) {
         return (options?.client ?? client).get<usersReadUsersResponses, usersReadUsersErrors, ThrowOnError>({
@@ -70,7 +150,7 @@ export class UsersService {
     /**
      * Create User
      *
-     * Create new user.
+     * Create a user (superuser only).
      */
     public static createUser<ThrowOnError extends boolean = true>(options: Options<usersCreateUserData, ThrowOnError>) {
         return (options.client ?? client).post<usersCreateUserResponses, usersCreateUserErrors, ThrowOnError>({
@@ -91,7 +171,7 @@ export class UsersService {
      * Delete own user.
      */
     public static deleteUserMe<ThrowOnError extends boolean = true>(options?: Options<usersDeleteUserMeData, ThrowOnError>) {
-        return (options?.client ?? client).delete<usersDeleteUserMeResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).delete<usersDeleteUserMeResponses, usersDeleteUserMeErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/users/me',
@@ -105,7 +185,7 @@ export class UsersService {
      * Get current user.
      */
     public static readUserMe<ThrowOnError extends boolean = true>(options?: Options<usersReadUserMeData, ThrowOnError>) {
-        return (options?.client ?? client).get<usersReadUserMeResponses, unknown, ThrowOnError>({
+        return (options?.client ?? client).get<usersReadUserMeResponses, usersReadUserMeErrors, ThrowOnError>({
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/users/me',
@@ -152,7 +232,7 @@ export class UsersService {
     /**
      * Register User
      *
-     * Create new user without the need to be logged in.
+     * Create a new user without being logged in.
      */
     public static registerUser<ThrowOnError extends boolean = true>(options: Options<usersRegisterUserData, ThrowOnError>) {
         return (options.client ?? client).post<usersRegisterUserResponses, usersRegisterUserErrors, ThrowOnError>({
@@ -169,7 +249,7 @@ export class UsersService {
     /**
      * Delete User
      *
-     * Delete a user.
+     * Delete a user (superuser only).
      */
     public static deleteUser<ThrowOnError extends boolean = true>(options: Options<usersDeleteUserData, ThrowOnError>) {
         return (options.client ?? client).delete<usersDeleteUserResponses, usersDeleteUserErrors, ThrowOnError>({
@@ -197,7 +277,7 @@ export class UsersService {
     /**
      * Update User
      *
-     * Update a user.
+     * Update a user (superuser only).
      */
     public static updateUser<ThrowOnError extends boolean = true>(options: Options<usersUpdateUserData, ThrowOnError>) {
         return (options.client ?? client).patch<usersUpdateUserResponses, usersUpdateUserErrors, ThrowOnError>({
@@ -222,105 +302,6 @@ export class UtilsService {
             responseType: 'json',
             url: '/api/v1/utils/health-check/',
             ...options
-        });
-    }
-}
-
-export class ItemsService {
-    /**
-     * Read Items
-     *
-     * Retrieve items.
-     */
-    public static readItems<ThrowOnError extends boolean = true>(options?: Options<itemsReadItemsData, ThrowOnError>) {
-        return (options?.client ?? client).get<itemsReadItemsResponses, itemsReadItemsErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/v1/items/',
-            ...options
-        });
-    }
-    
-    /**
-     * Create Item
-     *
-     * Create new item.
-     */
-    public static createItem<ThrowOnError extends boolean = true>(options: Options<itemsCreateItemData, ThrowOnError>) {
-        return (options.client ?? client).post<itemsCreateItemResponses, itemsCreateItemErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/v1/items/',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-    }
-    
-    /**
-     * Delete Item
-     *
-     * Delete an item.
-     */
-    public static deleteItem<ThrowOnError extends boolean = true>(options: Options<itemsDeleteItemData, ThrowOnError>) {
-        return (options.client ?? client).delete<itemsDeleteItemResponses, itemsDeleteItemErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/v1/items/{id}',
-            ...options
-        });
-    }
-    
-    /**
-     * Read Item
-     *
-     * Get item by ID.
-     */
-    public static readItem<ThrowOnError extends boolean = true>(options: Options<itemsReadItemData, ThrowOnError>) {
-        return (options.client ?? client).get<itemsReadItemResponses, itemsReadItemErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/v1/items/{id}',
-            ...options
-        });
-    }
-    
-    /**
-     * Update Item
-     *
-     * Update an item.
-     */
-    public static updateItem<ThrowOnError extends boolean = true>(options: Options<itemsUpdateItemData, ThrowOnError>) {
-        return (options.client ?? client).put<itemsUpdateItemResponses, itemsUpdateItemErrors, ThrowOnError>({
-            responseType: 'json',
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/api/v1/items/{id}',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-    }
-}
-
-export class PrivateService {
-    /**
-     * Create User
-     *
-     * Create a new user.
-     */
-    public static createUser<ThrowOnError extends boolean = true>(options: Options<privateCreateUserData, ThrowOnError>) {
-        return (options.client ?? client).post<privateCreateUserResponses, privateCreateUserErrors, ThrowOnError>({
-            responseType: 'json',
-            url: '/api/v1/private/users/',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
         });
     }
 }

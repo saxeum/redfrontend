@@ -9,6 +9,7 @@ SHELL := /bin/bash
 BUN          ?= $(shell command -v bun 2>/dev/null || printf '%s' "$$HOME/.bun/bin/bun")
 API_URL      ?= http://localhost:8000
 SPEC_SOURCE  ?= $(API_URL)/api/v1/openapi.json
+BACKEND_OPENAPI ?= ../redbackend/openapi.json
 
 export PATH := $(dir $(BUN)):$(PATH)
 
@@ -66,6 +67,9 @@ test-e2e-ui: ## Run Playwright in UI mode
 generate-client: ## Regenerate src/client from the backend spec
 	cd $(CURDIR) && SPEC_SOURCE=$(SPEC_SOURCE) bash scripts/generate-client.sh
 
+generate-client-backend: ## Regenerate src/client from the backend's committed openapi.json
+	cd $(CURDIR) && SPEC_SOURCE=$(BACKEND_OPENAPI) bash scripts/generate-client.sh
+
 ##@ Docker
 
 docker-build: ## Build the static frontend image
@@ -78,4 +82,4 @@ clean: ## Remove build and test artifacts
 	@echo 'Build and test artifacts removed.'
 
 .PHONY: help doctor urls env-check setup dev build preview lint \
-	test-e2e test-e2e-ui generate-client docker-build clean
+	test-e2e test-e2e-ui generate-client generate-client-backend docker-build clean

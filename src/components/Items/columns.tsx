@@ -1,7 +1,7 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Check, Copy } from "lucide-react"
 
-import type { ItemPublic } from "@/client"
+import type { ItemResponse } from "@/client"
 import type { DataTableFeatures } from "@/components/Common/DataTable"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
@@ -32,7 +32,7 @@ function CopyId({ id }: { id: string }) {
   )
 }
 
-export const columns: ColumnDef<DataTableFeatures, ItemPublic>[] = [
+export const columns: ColumnDef<DataTableFeatures, ItemResponse>[] = [
   {
     accessorKey: "id",
     header: "ID",

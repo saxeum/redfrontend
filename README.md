@@ -39,17 +39,24 @@ In production, route `/api/*` to the backend at the load balancer, or set
 ## OpenAPI client
 
 The generated client lives in `src/client` and is committed. Regenerate it when
-the backend schema changes:
+the backend schema changes. Prefer the backend's committed artifact, which is
+generated with the development-only `/private/users/` router excluded:
 
 ```bash
-# from a running backend
-make generate-client
-
-# from an exported spec (backend: make openapi)
+make generate-client-backend
+# equivalent to:
 make generate-client SPEC_SOURCE=../redbackend/openapi.json
 ```
 
+To fetch from a running backend instead (development only, includes
+`/private/users/`):
+
+```bash
+make generate-client
+```
+
 `SPEC_SOURCE` is the only cross-repository input. No backend code is imported.
+`openapi.json` is gitignored here; commit the regenerated `src/client` files.
 
 ## Tests
 

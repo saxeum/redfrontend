@@ -19,16 +19,33 @@ client.setConfig({
   auth: () => localStorage.getItem("access_token") || "",
 })
 
-const handleApiError = (error: Error) => {
-  if (
-    error instanceof AxiosError &&
-    [401, 403].includes(error.response?.status ?? 0)
-  ) {
-    localStorage.removeItem("access_token")
-    window.location.href = "/login"
-  }
+const isSessionError = (error: Error) => {
+  if (!(error instanceof AxiosError)) return false
+
+  const status = error.response?.status ?? 0
+  if (status === 401 || status === 403) return true
+
+  // A validly-signed token can outlive its user (e.g. after a database reset).
+  // The API answers `/users/me` with 404 "User not found" in that case.
+  return status === 404 && (error.config?.url ?? "").includes("/users/me")
 }
+
+const handleApiError = (error: Error) => {
+  if (!isSessionError(error)) return
+
+  localStorage.removeItem("access_token")
+  window.location.href = "/login"
+}
+
+const shouldRetry = (failureCount: number, error: Error) =>
+  !isSessionError(error) && failureCount < 3
+
 const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: shouldRetry,
+    },
+  },
   queryCache: new QueryCache({
     onError: handleApiError,
   }),

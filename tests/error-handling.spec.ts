@@ -216,6 +216,127 @@ test.describe("error handling UI", () => {
     ).not.toBeNull()
   })
 
+  test("a 409 conflict shows the detail and keeps the session", async ({
+    page,
+  }) => {
+    const email = randomEmail()
+    const password = randomPassword()
+    const otherEmail = randomEmail()
+    await createUser({ email, password })
+    await createUser({ email: otherEmail, password: randomPassword() })
+    await logInUser(page, email, password)
+
+    await page.goto("/settings")
+    await page.getByRole("tab", { name: "My profile" }).click()
+    await page.getByRole("button", { name: "Edit" }).click()
+    await page.getByLabel("Email").fill(otherEmail)
+    await page.getByRole("button", { name: "Save" }).click()
+
+    await expect(
+      page.getByText("User with this email already exists"),
+    ).toBeVisible()
+    await expect(page).toHaveURL(/\/settings/)
+    expect(
+      await page.evaluate(() => localStorage.getItem("access_token")),
+    ).not.toBeNull()
+  })
+
+  test("a wrong current password shows the detail and keeps the session", async ({
+    page,
+  }) => {
+    const email = randomEmail()
+    const password = randomPassword()
+    await createUser({ email, password })
+    await logInUser(page, email, password)
+
+    await page.goto("/settings")
+    await page.getByRole("tab", { name: "Password" }).click()
+    await page.getByTestId("current-password-input").fill("wrong-password")
+    await page.getByTestId("new-password-input").fill("new-password-123")
+    await page.getByTestId("confirm-password-input").fill("new-password-123")
+    await page.getByRole("button", { name: "Update Password" }).click()
+
+    await expect(page.getByText("Incorrect password")).toBeVisible()
+    await expect(page).toHaveURL(/\/settings/)
+    expect(
+      await page.evaluate(() => localStorage.getItem("access_token")),
+    ).not.toBeNull()
+  })
+
+  test("a 422 validation response shows the first detail message", async ({
+    page,
+  }) => {
+    const email = randomEmail()
+    const password = randomPassword()
+    await createUser({ email, password })
+    await logInUser(page, email, password)
+
+    await page.route(/\/api\/v1\/users\/me$/, async (route) => {
+      if (route.request().method() === "PATCH") {
+        await route.fulfill({
+          status: 422,
+          contentType: "application/json",
+          body: JSON.stringify({
+            detail: [
+              {
+                loc: ["body", "email"],
+                msg: "value is not a valid email address",
+                type: "value_error",
+              },
+            ],
+          }),
+        })
+        return
+      }
+      await route.continue()
+    })
+
+    await page.goto("/settings")
+    await page.getByRole("tab", { name: "My profile" }).click()
+    await page.getByRole("button", { name: "Edit" }).click()
+    await page.getByLabel("Email").fill(randomEmail())
+    await page.getByRole("button", { name: "Save" }).click()
+
+    await expect(
+      page.getByText("value is not a valid email address"),
+    ).toBeVisible()
+    await expect(page).toHaveURL(/\/settings/)
+  })
+
+  test("a 503 availability error shows the detail and keeps the session", async ({
+    page,
+  }) => {
+    const email = randomEmail()
+    const password = randomPassword()
+    await createUser({ email, password })
+    await logInUser(page, email, password)
+
+    await page.route(/\/api\/v1\/items\/.*/, async (route) => {
+      if (route.request().method() === "POST") {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ detail: "Service temporarily unavailable" }),
+        })
+        return
+      }
+      await route.continue()
+    })
+
+    await page.goto("/items")
+    await page.getByRole("button", { name: "Add Item" }).click()
+    await page.getByLabel("Title").fill("Unavailable item")
+    await page.getByRole("button", { name: "Save" }).click()
+
+    await expect(
+      page.getByText("Service temporarily unavailable"),
+    ).toBeVisible()
+    await expect(page).toHaveURL(/\/items/)
+    expect(
+      await page.evaluate(() => localStorage.getItem("access_token")),
+    ).not.toBeNull()
+  })
+
   test("an inactive login shows the error and stays on the login page", async ({
     page,
     request,

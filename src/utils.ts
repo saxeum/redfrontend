@@ -1,8 +1,18 @@
 import { AxiosError } from "axios"
 
+import type { ErrorResponse } from "@/client"
+
+/**
+ * The body our API sends on failure. Domain errors are `{detail: string}`;
+ * FastAPI request-validation errors are `{detail: [{msg, ...}]}`.
+ */
+type ErrorBody = {
+  detail?: ErrorResponse["detail"] | { msg: string }[]
+}
+
 function extractErrorMessage(err: Error): string {
   if (err instanceof AxiosError) {
-    const errDetail = (err.response?.data as any)?.detail
+    const errDetail = (err.response?.data as ErrorBody | undefined)?.detail
     if (Array.isArray(errDetail) && errDetail.length > 0) {
       return errDetail[0].msg
     }

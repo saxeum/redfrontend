@@ -77,6 +77,18 @@ password tab in settings.
 The access token is currently kept in `localStorage`; moving sessions to
 httpOnly cookies is tracked as a follow-up hardening item.
 
+## Mailbox
+
+Superusers get a **Mailbox** page for the shared customer service inbox:
+
+- newest-first list of stored messages;
+- full message body in a dialog;
+- manual **Refresh** (`POST /api/v1/mail/poll`) with a fetch summary.
+
+The backend mail API is read-only in phase 1: messages are polled into the
+database and the Gmail mailbox is not modified. Create/update/delete actions
+would require new backend endpoints and are not exposed in the GUI.
+
 ## Tests
 
 Playwright E2E requires a running backend:

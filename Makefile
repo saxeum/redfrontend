@@ -8,7 +8,6 @@ SHELL := /bin/bash
 
 BUN          ?= $(shell command -v bun 2>/dev/null || printf '%s' "$$HOME/.bun/bin/bun")
 API_URL      ?= http://localhost:8000
-MAILPIT_HOST ?= http://localhost:8025
 SPEC_SOURCE  ?= $(API_URL)/api/v1/openapi.json
 
 export PATH := $(dir $(BUN)):$(PATH)
@@ -28,7 +27,6 @@ doctor: ## Check tooling and required files
 urls: ## Print local URLs
 	@echo 'Frontend dev server: http://localhost:5173'
 	@echo 'Backend API:         $(API_URL)'
-	@echo 'Mailpit:             $(MAILPIT_HOST)'
 
 env-check: ## Verify .env exists
 	@test -f .env || { echo 'Missing .env — run: cp .env.example .env'; exit 1; }
@@ -56,12 +54,12 @@ lint: ## Run biome (writes fixes)
 
 ##@ Tests
 
-test-e2e: ## Run Playwright E2E serially (needs a running backend + Mailpit)
+test-e2e: ## Run Playwright E2E serially (needs a running backend)
 	@curl -fsS $(API_URL)/api/v1/utils/health-check/ >/dev/null || { echo "Backend not reachable at $(API_URL)."; exit 1; }
-	cd $(CURDIR) && MAILPIT_HOST=$(MAILPIT_HOST) $(BUN) x playwright test --workers=1
+	cd $(CURDIR) && $(BUN) x playwright test --workers=1
 
 test-e2e-ui: ## Run Playwright in UI mode
-	cd $(CURDIR) && MAILPIT_HOST=$(MAILPIT_HOST) $(BUN) x playwright test --ui
+	cd $(CURDIR) && $(BUN) x playwright test --ui
 
 ##@ OpenAPI client
 

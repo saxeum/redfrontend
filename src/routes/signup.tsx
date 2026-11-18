@@ -7,6 +7,7 @@ import {
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { AuthLayout } from "@/components/Common/AuthLayout"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -89,9 +90,18 @@ function SignUp() {
           Loading sign-in options…
         </p>
       ) : authConfig.isError ? (
-        <p className="text-center text-sm text-destructive">
-          Could not load sign-in options. Please refresh.
-        </p>
+        <div className="flex flex-col items-center gap-3">
+          <p className="text-center text-sm text-destructive">
+            Could not load sign-in options from the API.
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => authConfig.refetch()}
+            disabled={authConfig.isFetching}
+          >
+            Retry
+          </Button>
+        </div>
       ) : !passwordLogin ? (
         <div className="flex flex-col gap-4 text-center">
           <h1 className="text-2xl font-bold">Sign up</h1>

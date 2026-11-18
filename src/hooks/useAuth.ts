@@ -3,6 +3,7 @@ import { useNavigate } from "@tanstack/react-router"
 
 import {
   type Body_login_login_access_token as AccessToken,
+  AuthService,
   LoginService,
   type SignupRequest,
   type UserResponse,
@@ -53,6 +54,22 @@ const useAuth = () => {
     onError: handleError.bind(showErrorToast),
   })
 
+  const loginWithGoogle = async (idToken: string) => {
+    const response = await AuthService.loginWithGoogle({
+      body: { id_token: idToken },
+    })
+    localStorage.setItem("access_token", idToken)
+    queryClient.setQueryData(["currentUser"], response.data)
+  }
+
+  const googleLoginMutation = useMutation({
+    mutationFn: loginWithGoogle,
+    onSuccess: () => {
+      navigate({ to: "/" })
+    },
+    onError: handleError.bind(showErrorToast),
+  })
+
   const logout = () => {
     localStorage.removeItem("access_token")
     navigate({ to: "/login" })
@@ -61,6 +78,7 @@ const useAuth = () => {
   return {
     signUpMutation,
     loginMutation,
+    googleLoginMutation,
     logout,
     user,
   }

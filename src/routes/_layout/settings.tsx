@@ -25,9 +25,14 @@ export const Route = createFileRoute("/_layout/settings")({
 
 function UserSettings() {
   const { user: currentUser } = useAuth()
-  const finalTabs = currentUser?.is_superuser
+  const baseTabs = currentUser?.is_superuser
     ? tabsConfig.slice(0, 3)
     : tabsConfig
+  // Accounts created through Google have no local password.
+  const finalTabs =
+    currentUser?.has_password === false
+      ? baseTabs.filter((tab) => tab.value !== "password")
+      : baseTabs
 
   if (!currentUser) {
     return null

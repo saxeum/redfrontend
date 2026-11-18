@@ -53,7 +53,7 @@ make generate-client SPEC_SOURCE=../redbackend/openapi.json
 
 ## Tests
 
-Playwright E2E requires a running backend and Mailpit:
+Playwright E2E requires a running backend:
 
 ```bash
 make test-e2e

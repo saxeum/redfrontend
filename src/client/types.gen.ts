@@ -35,6 +35,22 @@ export type Body_login_login_access_token = {
 };
 
 /**
+ * ConfigResponse
+ *
+ * Public runtime settings the SPA reads before it renders a login form.
+ */
+export type ConfigResponse = {
+    /**
+     * Google Client Id
+     */
+    google_client_id: string | null;
+    /**
+     * Password Login
+     */
+    password_login: boolean;
+};
+
+/**
  * ErrorResponse
  *
  * Shape of every domain error returned by the API.
@@ -44,6 +60,18 @@ export type ErrorResponse = {
      * Detail
      */
     detail: string;
+};
+
+/**
+ * GoogleTokenRequest
+ *
+ * A Google OpenID Connect ID token, as issued to the SPA.
+ */
+export type GoogleTokenRequest = {
+    /**
+     * Id Token
+     */
+    id_token: string;
 };
 
 /**
@@ -247,6 +275,10 @@ export type UserResponse = {
      */
     full_name: string | null;
     /**
+     * Has Password
+     */
+    has_password: boolean;
+    /**
      * Id
      */
     id: string;
@@ -314,6 +346,47 @@ export type ValidationError = {
     type: string;
 };
 
+export type authLoginWithGoogleData = {
+    body: GoogleTokenRequest;
+    path?: never;
+    query?: never;
+    url: '/api/v1/auth/google';
+};
+
+export type authLoginWithGoogleErrors = {
+    /**
+     * Inactive user
+     */
+    400: ErrorResponse;
+    /**
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * This account is not allowed to sign in
+     */
+    403: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HTTPValidationError;
+    /**
+     * Service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type authLoginWithGoogleError = authLoginWithGoogleErrors[keyof authLoginWithGoogleErrors];
+
+export type authLoginWithGoogleResponses = {
+    /**
+     * Successful Response
+     */
+    200: UserResponse;
+};
+
+export type authLoginWithGoogleResponse = authLoginWithGoogleResponses[keyof authLoginWithGoogleResponses];
+
 export type itemsReadItemsData = {
     body?: never;
     path?: never;
@@ -334,7 +407,7 @@ export type itemsReadItemsErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -367,7 +440,7 @@ export type itemsCreateItemErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -403,7 +476,11 @@ export type itemsDeleteItemData = {
 
 export type itemsDeleteItemErrors = {
     /**
-     * Not enough permissions / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * Not enough permissions
      */
     403: ErrorResponse;
     /**
@@ -445,7 +522,11 @@ export type itemsReadItemData = {
 
 export type itemsReadItemErrors = {
     /**
-     * Not enough permissions / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * Not enough permissions
      */
     403: ErrorResponse;
     /**
@@ -487,7 +568,11 @@ export type itemsUpdateItemData = {
 
 export type itemsUpdateItemErrors = {
     /**
-     * Not enough permissions / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * Not enough permissions
      */
     403: ErrorResponse;
     /**
@@ -528,6 +613,10 @@ export type loginLoginAccessTokenErrors = {
      */
     400: ErrorResponse;
     /**
+     * Password login is disabled
+     */
+    404: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HTTPValidationError;
@@ -559,7 +648,7 @@ export type loginTestTokenErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * Service temporarily unavailable
      */
@@ -595,7 +684,11 @@ export type usersReadUsersData = {
 
 export type usersReadUsersErrors = {
     /**
-     * The user doesn't have enough privileges / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
      */
     403: ErrorResponse;
     /**
@@ -632,7 +725,11 @@ export type usersCreateUserErrors = {
      */
     400: ErrorResponse;
     /**
-     * The user doesn't have enough privileges / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
      */
     403: ErrorResponse;
     /**
@@ -665,7 +762,11 @@ export type usersDeleteUserMeData = {
 
 export type usersDeleteUserMeErrors = {
     /**
-     * Super users are not allowed to delete themselves / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * Super users are not allowed to delete themselves
      */
     403: ErrorResponse;
     /**
@@ -696,7 +797,7 @@ export type usersReadUserMeErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * Service temporarily unavailable
      */
@@ -725,7 +826,7 @@ export type usersUpdateUserMeErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * User with this email already exists
      */
@@ -766,7 +867,7 @@ export type usersUpdatePasswordMeErrors = {
     /**
      * Could not validate credentials
      */
-    403: ErrorResponse;
+    401: ErrorResponse;
     /**
      * Validation Error
      */
@@ -800,6 +901,10 @@ export type usersRegisterUserErrors = {
      * The user with this email already exists in the system
      */
     400: ErrorResponse;
+    /**
+     * Password login is disabled
+     */
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -835,7 +940,11 @@ export type usersDeleteUserData = {
 
 export type usersDeleteUserErrors = {
     /**
-     * The user doesn't have enough privileges / Super users are not allowed to delete themselves / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges / Super users are not allowed to delete themselves
      */
     403: ErrorResponse;
     /**
@@ -877,7 +986,11 @@ export type usersReadUserByIdData = {
 
 export type usersReadUserByIdErrors = {
     /**
-     * The user doesn't have enough privileges / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
      */
     403: ErrorResponse;
     /**
@@ -919,7 +1032,11 @@ export type usersUpdateUserData = {
 
 export type usersUpdateUserErrors = {
     /**
-     * The user doesn't have enough privileges / Could not validate credentials
+     * Could not validate credentials
+     */
+    401: ErrorResponse;
+    /**
+     * The user doesn't have enough privileges
      */
     403: ErrorResponse;
     /**
@@ -950,6 +1067,31 @@ export type usersUpdateUserResponses = {
 };
 
 export type usersUpdateUserResponse = usersUpdateUserResponses[keyof usersUpdateUserResponses];
+
+export type utilsReadConfigData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/utils/config';
+};
+
+export type utilsReadConfigErrors = {
+    /**
+     * Service temporarily unavailable
+     */
+    503: ErrorResponse;
+};
+
+export type utilsReadConfigError = utilsReadConfigErrors[keyof utilsReadConfigErrors];
+
+export type utilsReadConfigResponses = {
+    /**
+     * Successful Response
+     */
+    200: ConfigResponse;
+};
+
+export type utilsReadConfigResponse = utilsReadConfigResponses[keyof utilsReadConfigResponses];
 
 export type utilsHealthCheckData = {
     body?: never;

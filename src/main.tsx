@@ -23,11 +23,27 @@ const isSessionError = (error: Error) => {
   if (!(error instanceof AxiosError)) return false
 
   const status = error.response?.status ?? 0
-  if (status === 401 || status === 403) return true
+  const detail = (error.response?.data as { detail?: string } | undefined)
+    ?.detail
+  const url = error.config?.url ?? ""
+
+  if (status === 401) return true
 
   // A validly-signed token can outlive its user (e.g. after a database reset).
   // The API answers `/users/me` with 404 "User not found" in that case.
-  return status === 404 && (error.config?.url ?? "").includes("/users/me")
+  if (status === 404) return url.includes("/users/me")
+
+  // 403 also covers legitimate authorization failures (item/user permissions).
+  // Only an invalid token means the whole session is dead.
+  if (status === 403) return detail === "Could not validate credentials"
+
+  // An inactive user can still hold a valid token. Keep the login failure toast
+  // intact by excluding the access-token request.
+  if (status === 400 && detail === "Inactive user") {
+    return !url.includes("/login/access-token")
+  }
+
+  return false
 }
 
 const handleApiError = (error: Error) => {
@@ -37,8 +53,14 @@ const handleApiError = (error: Error) => {
   window.location.href = "/login"
 }
 
-const shouldRetry = (failureCount: number, error: Error) =>
-  !isSessionError(error) && failureCount < 3
+// Client errors are deterministic; retrying them only delays the error toast.
+const shouldRetry = (failureCount: number, error: Error) => {
+  if (error instanceof AxiosError) {
+    const status = error.response?.status ?? 0
+    if (status >= 400 && status < 500) return false
+  }
+  return failureCount < 3
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {

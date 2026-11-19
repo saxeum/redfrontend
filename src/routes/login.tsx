@@ -10,6 +10,7 @@ import { z } from "zod"
 import type { Body_login_login_access_token as AccessToken } from "@/client"
 import { AuthLayout } from "@/components/Common/AuthLayout"
 import GoogleSignInButton from "@/components/Common/GoogleSignInButton"
+import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
@@ -106,9 +107,18 @@ function Login() {
             Loading sign-in options…
           </p>
         ) : authConfig.isError ? (
-          <p className="text-center text-sm text-destructive">
-            Could not load sign-in options. Please refresh.
-          </p>
+          <div className="flex flex-col items-center gap-3">
+            <p className="text-center text-sm text-destructive">
+              Could not load sign-in options from the API.
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => authConfig.refetch()}
+              disabled={authConfig.isFetching}
+            >
+              Retry
+            </Button>
+          </div>
         ) : (
           <>
             {googleError ? (

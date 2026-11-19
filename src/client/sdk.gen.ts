@@ -2,7 +2,7 @@
 
 import { type Client, type Options as Options2, type TDataShape, urlSearchParamsBodySerializer } from './client';
 import { client } from './client.gen';
-import type { authGoogleStartData, authGoogleStartResponses, authLoginWithGoogleData, authLoginWithGoogleErrors, authLoginWithGoogleResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginTestTokenData, loginTestTokenErrors, loginTestTokenResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeErrors, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeErrors, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsReadConfigData, utilsReadConfigErrors, utilsReadConfigResponses } from './types.gen';
+import type { authGoogleStartData, authGoogleStartResponses, authLoginWithGoogleData, authLoginWithGoogleErrors, authLoginWithGoogleResponses, itemsCreateItemData, itemsCreateItemErrors, itemsCreateItemResponses, itemsDeleteItemData, itemsDeleteItemErrors, itemsDeleteItemResponses, itemsReadItemData, itemsReadItemErrors, itemsReadItemResponses, itemsReadItemsData, itemsReadItemsErrors, itemsReadItemsResponses, itemsUpdateItemData, itemsUpdateItemErrors, itemsUpdateItemResponses, loginLoginAccessTokenData, loginLoginAccessTokenErrors, loginLoginAccessTokenResponses, loginTestTokenData, loginTestTokenErrors, loginTestTokenResponses, mailListMailMessagesData, mailListMailMessagesErrors, mailListMailMessagesResponses, mailPollMailboxData, mailPollMailboxErrors, mailPollMailboxResponses, mailReadMailMessageData, mailReadMailMessageErrors, mailReadMailMessageResponses, usersCreateUserData, usersCreateUserErrors, usersCreateUserResponses, usersDeleteUserData, usersDeleteUserErrors, usersDeleteUserMeData, usersDeleteUserMeErrors, usersDeleteUserMeResponses, usersDeleteUserResponses, usersReadUserByIdData, usersReadUserByIdErrors, usersReadUserByIdResponses, usersReadUserMeData, usersReadUserMeErrors, usersReadUserMeResponses, usersReadUsersData, usersReadUsersErrors, usersReadUsersResponses, usersRegisterUserData, usersRegisterUserErrors, usersRegisterUserResponses, usersUpdatePasswordMeData, usersUpdatePasswordMeErrors, usersUpdatePasswordMeResponses, usersUpdateUserData, usersUpdateUserErrors, usersUpdateUserMeData, usersUpdateUserMeErrors, usersUpdateUserMeResponses, usersUpdateUserResponses, utilsHealthCheckData, utilsHealthCheckResponses, utilsReadConfigData, utilsReadConfigErrors, utilsReadConfigResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -159,6 +159,50 @@ export class LoginService {
             responseType: 'json',
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/api/v1/login/test-token',
+            ...options
+        });
+    }
+}
+
+export class MailService {
+    /**
+     * List Mail Messages
+     *
+     * List stored mail, newest first.
+     */
+    public static listMailMessages<ThrowOnError extends boolean = true>(options?: Options<mailListMailMessagesData, ThrowOnError>) {
+        return (options?.client ?? client).get<mailListMailMessagesResponses, mailListMailMessagesErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/mail/messages',
+            ...options
+        });
+    }
+    
+    /**
+     * Read Mail Message
+     *
+     * Read one stored message, including its body.
+     */
+    public static readMailMessage<ThrowOnError extends boolean = true>(options: Options<mailReadMailMessageData, ThrowOnError>) {
+        return (options.client ?? client).get<mailReadMailMessageResponses, mailReadMailMessageErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/mail/messages/{mail_id}',
+            ...options
+        });
+    }
+    
+    /**
+     * Poll Mailbox
+     *
+     * Store the mail added since the last cycle.
+     */
+    public static pollMailbox<ThrowOnError extends boolean = true>(options?: Options<mailPollMailboxData, ThrowOnError>) {
+        return (options?.client ?? client).post<mailPollMailboxResponses, mailPollMailboxErrors, ThrowOnError>({
+            responseType: 'json',
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/api/v1/mail/poll',
             ...options
         });
     }
